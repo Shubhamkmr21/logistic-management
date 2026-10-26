@@ -1,4 +1,4 @@
-# Routeflow Local Logistics Workspace
+# Routeflow Logistics Workspace
 
 ```text
  ____             _       __ _
@@ -8,87 +8,130 @@
 |_| \_\___/ \__,_|\__\___|_| |_|\___/ \_/\_/
 ```
 
-**Local Logistics Management Workspace**
+Routeflow is a role-based logistics workspace for maintaining shipment records, items, statuses, and tracking history. Local shipment data is stored in PostgreSQL. The shipment list starts empty unless the database already contains records; the app does not create sample shipments.
 
-A modern workspace for managing logistics requests, shipment details,
-tracking numbers, and multi-item dispatch workflows.
+## Features
 
----
+- Create shipments with an origin, destination, recipient, carrier, mode, delivery date, and one or more items.
+- Edit shipment details and items. Each edit is recorded in tracking history with the employee who made it.
+- Search shipments and items; filter by status or carrier; sort and page through saved records; export the filtered list to CSV.
+- Update shipment status with server-side transition checks. Tracking history records who made each change.
+- Cancel eligible shipments into the **Bin**. Staff and admins can restore them; restored shipments return to their last non-cancelled status. Admins can permanently delete shipments from the Bin. Permanent deletion also removes the shipment's items and tracking history.
+- Manage workspace users as an admin: review registered accounts and role requests, change access, and delete accounts. The API prevents deleting your own account or the last administrator.
+- Use Staff, Viewer, or Admin access. The API checks each protected operation; the UI also adapts to the signed-in role.
+- View weights in kilograms. Existing pound values are converted to kilograms once by the API migration.
+- Switch between light and dark themes. The preference is saved in the browser.
+- Sign in with local email and password or Google. Microsoft Entra ID can be configured as an alternative provider.
 
-This version is wired end to end for local development. Shipment records, items, users, and status history live in PostgreSQL. The UI starts with an empty shipment register; it does not invent shipment activity or tracking updates.
+## Requirements
 
-## Start the local app
+- Node.js 20 or newer and npm
+- Docker Desktop with Docker Compose
 
-Requirements: Docker Desktop running, Node.js 20 or newer, and npm.
+## Run locally
 
-From the project root, start PostgreSQL:
+Start PostgreSQL from the project root:
 
 ```powershell
-docker compose up -d
+docker compose up -d postgres
 ```
 
-Start the API in one terminal:
+In a second terminal, install and start the API:
 
 ```powershell
 cd backend
-Copy-Item .env.example .env
+Copy-Item .env.example .env # Run once; keep this file for later starts.
 npm install
 npm run dev
 ```
 
-The `Copy-Item` command is a one-time setup; keep your local `.env` when restarting.
-
-Start the UI in another terminal:
+In another terminal, install and start the frontend from the project root:
 
 ```powershell
+Copy-Item .env.example .env.local # Run once; keep this file for later starts.
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. The database is exposed on port **5433** because port 5432 is already in use on this machine. Docker keeps its data in a named volume, so records survive app and computer restarts.
+Open [http://localhost:5173](http://localhost:5173). The API runs at [http://localhost:4000](http://localhost:4000); check its database connection at `/health`. PostgreSQL is exposed on localhost port **5433** and its data is kept in the `routeflow_pgdata` Docker volume, so restarting the app does not erase records.
 
-## Local role accounts
+## Local development sign-in
 
-These development-only accounts are checked by the API. Choose the matching role on the login screen, then enter the credentials; the form never pre-fills an account. The role also comes from the database on each request.
+The API provisions these local-only accounts. Choose the matching role on the sign-in screen and enter the credentials; the form does not prefill them.
 
 | Role | Email | Password |
-|---|---|---|
+| --- | --- | --- |
+| Admin | `admin@routeflow.local` | `admin1234` |
 | Staff | `staff@routeflow.local` | `staff1234` |
 | Viewer | `viewer@routeflow.local` | `viewer1234` |
-| Admin | `admin@routeflow.local` | `admin1234` |
 
-Staff and admins can create, update, and cancel shipments. Viewers can search and read records. Local account passwords can be changed in `backend/.env` (`DEV_*_PASSWORD`). This login mode is for a private development machine, not production.
+Set the initial local passwords in `backend/.env` with `DEV_ADMIN_PASSWORD`, `DEV_STAFF_PASSWORD`, and `DEV_VIEWER_PASSWORD` before first sign-in. After an account has a stored password hash, use **Forgot password?** to change it. Local authentication is for development on a private machine and should not be exposed as production authentication.
 
-## Working features
+New email/password registrations start with Viewer access; requesting Staff or Admin creates a pending request for approval in **User access**. New Google users must register as Viewer, then ask an administrator to grant another role. When using local email/password sign-in without SMTP, the password reset link is shown in the app and expires after 30 minutes.
 
-- Create a shipment with a route, recipient, carrier, delivery date, and any number of items.
-- Generate its tracking number on the API and save the shipment and items in one PostgreSQL transaction.
-- Search shipment IDs, recipients, routes, carrier names, SKUs, and item names; filter by status and carrier; sort and paginate the loaded records.
-- Update a shipment status with server-side transition checks. Each accepted update is saved as a tracking event.
-- Show who created or changed each tracking event and display item and shipment weights in kilograms. Existing weight records are converted from pounds once during API startup.
-- View saved items and the actual status history, cancel a permitted shipment, and export the current table to CSV.
-- Enforce roles in the API, not only by hiding UI controls.
-- Give admins a user directory with server-enforced role changes. Staff can create and update shipments; viewers have read-only shipment access.
-- Let admins delete accounts from the user directory. The API prevents deleting the signed-in administrator or the last administrator; shipment records and tracking history remain after account removal.
-- Provide a persistent Light/Dark theme toggle across sign-in and workspace screens.
-- Sign in or register with Google after configuring an OAuth web client. New Google registrations start as Viewer; an admin can change access from User access.
+## Google sign-in
 
-The UI loads API pages in batches so local search, filters, and pagination include all saved shipments. Carrier GPS, messaging, freight prices, predictive risk scores, and document upload need separate carrier/provider integrations; the local app does not present them as live data.
+1. Create a Google OAuth client for a Web application.
+2. Add `http://localhost:5173` as an authorized JavaScript origin.
+3. Set the client ID as `VITE_GOOGLE_CLIENT_ID` in the project root `.env.local` and `GOOGLE_CLIENT_ID` in `backend/.env`.
+4. Restart the frontend and API.
 
-## Database and API
+The API verifies Google identity tokens. An admin can promote a new account to Staff or Admin in **User access**.
 
-`docker-compose.yml` starts PostgreSQL 17 and initializes it from `database/schema.sql`. The local connection is `postgres://routeflow:routeflow_local@localhost:5433/routeflow`.
+## Microsoft Entra ID sign-in
 
-The API runs at `http://localhost:4000`. Useful routes include `POST /api/auth/login`, `GET /api/auth/me`, `GET /api/shipments`, `POST /api/shipments`, `GET /api/shipments/:id`, `GET /api/shipments/track/:trackingNumber`, `PATCH /api/shipments/:id/status`, `DELETE /api/shipments/:id`, `GET /api/dashboard/stats`, and `GET /health`.
+Microsoft sign-in requires an Entra app registration for the SPA and an API registration with a delegated scope.
 
-## Google sign-in setup
+1. Add `http://localhost:5173` as the SPA redirect URI.
+2. Configure a delegated API scope, such as `access_as_user`, and grant the SPA permission to request it.
+3. In the project root `.env.local`, set `VITE_AUTH_MODE=microsoft`, `VITE_MS_CLIENT_ID`, `VITE_MS_TENANT_ID`, and `VITE_MS_API_SCOPE` (for example, `api://<api-client-id>/access_as_user`). Set `VITE_ALLOWED_EMAILS` to a comma-separated allowlist, or leave it empty to allow any signed-in account.
+4. In `backend/.env`, set `AUTH_MODE=microsoft`, `MS_TENANT_ID`, and `MS_API_AUDIENCE` to match the Entra tenant and API audience.
+5. Restart both servers.
 
-Create a Google OAuth client ID for a Web application. Add `http://localhost:5173` as an authorized JavaScript origin. Set the same client ID in `backend/.env` as `GOOGLE_CLIENT_ID` and in the project root `.env.local` as `VITE_GOOGLE_CLIENT_ID`, then restart both servers. The sign-in screen identifies which settings are missing. Google credentials are verified by the API; new accounts receive Viewer access and an admin must grant Staff or Admin.
+The API creates first-time Microsoft users as Viewers. An administrator can then assign Staff or Admin access. For a fresh Microsoft-only database, sign in once with the trusted account, then grant the first administrator role directly in PostgreSQL. Replace the email with that verified account:
 
-## Registration and password reset
+```sql
+UPDATE users
+SET role = 'admin', requested_role = NULL
+WHERE lower(email) = lower('admin@your-company.com');
+```
 
-Use **Register now** to create an email/password account. New accounts start as Viewer. Selecting Staff or Admin creates an access request that an administrator can approve in **User access**. Passwords are hashed before they are stored.
+Run this only for an identity you have verified; afterwards, manage roles from **User access**.
 
-In local development, **Forgot password?** creates a one-time reset link in the UI; it expires after 30 minutes. For reset links delivered by email, configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in `backend/.env`, then restart the API. Email accounts can reset their password; Google-only accounts should continue using Google sign-in.
+## Optional password-reset email
 
-To use Microsoft Entra ID later, set `AUTH_MODE=microsoft` in the backend, configure the API audience and tenant, and set `VITE_AUTH_MODE=microsoft`, `VITE_MS_CLIENT_ID`, `VITE_MS_TENANT_ID`, and `VITE_MS_API_SCOPE` in the frontend environment. Local credentials should not be enabled on a deployed server.
+To deliver reset links by email, configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in `backend/.env`, then restart the API. Without SMTP, local mode returns a development reset link in the app.
+
+## API overview
+
+The API is mounted under `/api`. Protected routes require a bearer token.
+
+| Method | Route | Access | Description |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/login` | Local mode | Sign in with a local account or registered email account |
+| `POST` | `/api/auth/register` | Local mode | Register as Viewer or request Staff/Admin access |
+| `POST` | `/api/auth/google` | Google configured | Sign in with Google |
+| `GET` | `/api/auth/me` | Signed in | Return the current account and role |
+| `GET` | `/api/shipments` | Signed in | Search and page through active shipments |
+| `POST` | `/api/shipments` | Staff, Admin | Create a shipment |
+| `GET` | `/api/shipments/:id` | Signed in | Read shipment details and history |
+| `PATCH` | `/api/shipments/:id` | Staff, Admin | Edit shipment details and items |
+| `PATCH` | `/api/shipments/:id/status` | Staff, Admin | Change shipment status |
+| `DELETE` | `/api/shipments/:id` | Staff, Admin | Cancel a shipment into the Bin |
+| `GET` | `/api/shipments/bin` | Staff, Admin | List cancelled shipments |
+| `POST` | `/api/shipments/:id/restore` | Staff, Admin | Restore a cancelled shipment |
+| `DELETE` | `/api/shipments/:id/permanent` | Admin | Permanently delete a shipment from the Bin |
+| `GET` | `/api/shipments/track/:trackingNumber` | Signed in | Read tracking details and event history |
+| `GET` | `/api/users` | Admin | List workspace users and role requests |
+| `PATCH` | `/api/users/:id/role` | Admin | Change a user's role |
+| `DELETE` | `/api/users/:id` | Admin | Delete a user account |
+| `GET` | `/api/dashboard/stats` | Signed in | Return shipment status counts |
+| `GET` | `/health` | Public | Check API and database availability |
+
+## Data and integrations
+
+Shipment records, items, accounts, and tracking events are stored in PostgreSQL. Shipment events record the actor's name so history remains attributable even if that account is later deleted. Dashboard shipment counts are calculated from saved records. The displayed average-delay value is currently placeholder text; it is not calculated from carrier telemetry.
+
+Carrier GPS updates, recipient notifications, live chat, freight pricing, predictive risk scoring, and document upload are not connected. Shipment status changes are entered by staff or admins. These functions need separate carrier or service integrations before they can provide live data.
+
+To remove the local database and all stored records, run `docker compose down -v` from the project root. This permanently deletes the PostgreSQL volume.
