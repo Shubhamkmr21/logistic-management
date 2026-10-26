@@ -1,4 +1,19 @@
-# Routeflow local logistics workspace
+# Routeflow Local Logistics Workspace
+
+```text
+ ____             _       __ _
+|  _ \ ___  _   _| |_ ___/ _| | _____      __
+| |_) / _ \| | | | __/ _ \ |_| |/ _ \ \ /\ / /
+|  _ < (_) | |_| | ||  __/  _| | (_) \ V  V /
+|_| \_\___/ \__,_|\__\___|_| |_|\___/ \_/\_/
+```
+
+**Local Logistics Management Workspace**
+
+A modern workspace for managing logistics requests, shipment details,
+tracking numbers, and multi-item dispatch workflows.
+
+---
 
 This version is wired end to end for local development. Shipment records, items, users, and status history live in PostgreSQL. The UI starts with an empty shipment register; it does not invent shipment activity or tracking updates.
 
