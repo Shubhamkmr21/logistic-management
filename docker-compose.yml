@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: routeflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: routeflow
+      POSTGRES_USER: routeflow
+      POSTGRES_PASSWORD: routeflow_local
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - routeflow_pgdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U routeflow -d routeflow"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  routeflow_pgdata:
