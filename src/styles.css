@@ -33,3 +33,22 @@ html[data-theme="dark"] .detail-empty{color:#a6b2aa}html[data-theme="dark"] .sta
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .edit-shipment{width:100%;height:32px;margin:10px 0 2px;border:1px solid #e3e9e4;border-radius:6px;background:#f8faf8;color:#28764a;font-size:11px;font-weight:600}.edit-shipment:hover{background:#edf7ef;border-color:#cde2d2}.bin-panel{border:1px solid #e7ebe8;background:#fff;border-radius:9px;overflow:hidden}.bin-row{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid #edf0ee}.bin-row:last-child{border-bottom:0}.bin-shipment-icon{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:8px;background:#f5efe5;color:#9a7040}.bin-shipment-info{min-width:0;display:grid;gap:5px;flex:1}.bin-shipment-info>strong{display:flex;align-items:center;gap:8px;font-size:12px}.bin-shipment-info>span,.bin-shipment-info>small{color:#7f8982;font-size:10px}.bin-shipment-info>small{color:#9ba39d}.bin-shipment-info b{padding:0 4px;color:#9aa39d}.bin-actions{display:flex;gap:7px}.button.danger{border-color:#efd8d5;background:#fff8f7;color:#ad5148}.button.danger:hover{background:#ffefed}.bin-empty{min-height:210px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;color:#969f99}.bin-empty strong{color:#424d46;font-size:13px}.bin-empty span{font-size:11px}.nav-static{cursor:default}.nav-static:hover{background:transparent;color:#777f7b}html[data-theme="dark"] .bin-panel{background:#1b2420;border-color:#303b35}html[data-theme="dark"] .bin-row{border-color:#303a34}html[data-theme="dark"] .bin-shipment-icon{background:#3a3023;color:#d6b178}html[data-theme="dark"] .bin-shipment-info>strong,html[data-theme="dark"] .bin-empty strong{color:#e5ebe7}html[data-theme="dark"] .bin-shipment-info>span,html[data-theme="dark"] .bin-shipment-info>small,html[data-theme="dark"] .bin-empty{color:#a1ada5}html[data-theme="dark"] .edit-shipment{background:#20372a;color:#a8e1b6;border-color:#345c40}html[data-theme="dark"] .button.danger{background:#382523;border-color:#69413c;color:#ffaaa0}@media(max-width:760px){.bin-row{align-items:flex-start;flex-wrap:wrap}.bin-actions{width:100%;padding-left:52px}.bin-actions .button{flex:1}.bin-shipment-info{width:calc(100% - 54px)}}
 .status-badge.cancelled{color:#9a5147;background:#fae9e6}html[data-theme="dark"] .status-badge.cancelled{color:#ffb1a7;background:#492b27}
+/* Keep important text readable on the dark dashboard surfaces. */
+html[data-theme="dark"] .tracking-link{color:#d7e1da}
+html[data-theme="dark"] .tracking-link:hover{color:#9be0b1}
+html[data-theme="dark"] .route-cell strong,html[data-theme="dark"] .carrier-cell strong,html[data-theme="dark"] .view-button{color:#d7e1da}
+html[data-theme="dark"] .route-cell span,html[data-theme="dark"] .carrier-cell small,html[data-theme="dark"] .sort-caption,html[data-theme="dark"] .table-footer{color:#aab7ae}
+html[data-theme="dark"] .metric span,html[data-theme="dark"] .metric strong{color:#b9c6bd}
+html[data-theme="dark"] .metric strong{color:#e1e9e3}
+html[data-theme="dark"] .th-sort{color:#c5d0c8}
+html[data-theme="dark"] .timeline-row strong{color:#dce5de}
+html[data-theme="dark"] .timeline-row small{color:#aab7ae}
+html[data-theme="dark"] .record-item strong{color:#e1e9e3}
+html[data-theme="dark"] .section-kicker,html[data-theme="dark"] .eyebrow,html[data-theme="dark"] .detail-section-title,html[data-theme="dark"] .detail-topline .section-kicker,html[data-theme="dark"] .milestone-count,html[data-theme="dark"] .today-label{color:#aebbb2}
+html[data-theme="dark"] .detail-route{color:#c0ccc3}
+html[data-theme="dark"] .detail-route svg{color:#aebbb2}
+html[data-theme="dark"] .status-tabs .status-tab{color:#c2cec5}
+html[data-theme="dark"] .status-tabs .status-tab small{color:#b7c2ba;background:#303c34}
+html[data-theme="dark"] .table-heading h2,html[data-theme="dark"] .page-heading h1{color:#edf3ee}
+html[data-theme="dark"] .eta-cell,html[data-theme="dark"] .table-footer strong{color:#d7e1da}
+html[data-theme="dark"] .th-sort:hover,html[data-theme="dark"] .view-button:hover{color:#9be0b1}
